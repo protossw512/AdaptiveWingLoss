@@ -1,2 +1,2 @@
 # AdaptiveWingLoss
-[ICCV 2019] Adaptive Wing Loss for Robust Face Alignment via Heatmap Regression
+Official Implementation of Adaptive Wing Loss for Robust Face Alignment via Heatmap Regression, ICCV 2019
