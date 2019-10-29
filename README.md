@@ -73,3 +73,5 @@ year = {2019}
 }
 ```
 
+## Acknowledgments
+This repository borrows or partially modifies hourglass model and data processing code from [face alignment](https://github.com/1adrianb/face-alignment) and [pose-hg-train](https://github.com/princeton-vl/pose-hg-train).
