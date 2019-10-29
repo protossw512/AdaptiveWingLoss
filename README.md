@@ -1,13 +1,14 @@
 # AdaptiveWingLoss
 ## [arXiv](https://arxiv.org/abs/1904.07399)
 Pytorch Implementation of Adaptive Wing Loss for Robust Face Alignment via Heatmap Regression.
+<img src='images/WFLW.png' width="1000px">
 
 ## Update Logs:
 ### October 28, 2019
 * Pretrained Model and evaluation code on WFLW dataset is released.
 
 ## Installation
-#### Note: Code was originally developed under Python2.X and Pytorch 0.4, but tested on Python3.5.7 and Pytorch 1.3.0.
+#### Note: Code was originally developed under Python2.X and Pytorch 0.4. This released version was revisioned from original code and was tested on Python3.5.7 and Pytorch 1.3.0.
 
 Install system requirements:
 ```
@@ -49,6 +50,7 @@ pip3 install -r requirements.txt
     ```
     sh eval_wflw.sh
     ```
+    <img src='images/WFLW_table.png' width="1000px">
 
 ## Future Plans
 - [x] Release evaluation code and pretrained model on WFLW dataset.
