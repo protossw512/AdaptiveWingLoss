@@ -52,7 +52,8 @@ pip3 install -r requirements.txt
     sh eval_wflw.sh
     ```
     
-    <img src='images/wflw_table.png' width="1000px">
+    <img src='images/wflw_table.png' width="800px">
+    *GTBbox indicates the ground truth landmarks are used as bounding box to crop faces.
 
 ## Future Plans
 - [x] Release evaluation code and pretrained model on WFLW dataset.
