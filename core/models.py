@@ -141,6 +141,7 @@ class HourGlass(nn.Module):
         x, last_channel = self.coordconv(x, heatmap)
         return self._forward(self.depth, x), last_channel
 
+
 class FAN(nn.Module):
 
     def __init__(self, num_modules=1, end_relu=False, gray_scale=False,

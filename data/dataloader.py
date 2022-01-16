@@ -43,6 +43,7 @@ class AddBoundary(object):
             boundaries['upper_inner_lip'] = np.array([landmarks_64[i] for i in [60, 61, 62, 63, 64]])
             boundaries['lower_outer_lip'] = np.array([landmarks_64[i] for i in [48, 59, 58, 57, 56, 55, 54]])
             boundaries['lower_inner_lip'] = np.array([landmarks_64[i] for i in [60, 67, 66, 65, 64]])
+
         elif self.num_landmarks == 98:
             boundaries = {}
             boundaries['cheek'] = landmarks_64[0:33]
@@ -58,6 +59,7 @@ class AddBoundary(object):
             boundaries['upper_inner_lip'] = np.array([landmarks_64[i] for i in [88, 89, 90, 91, 92]])
             boundaries['lower_outer_lip'] = np.array([landmarks_64[i] for i in [76, 87, 86, 85, 84, 83, 82]])
             boundaries['lower_inner_lip'] = np.array([landmarks_64[i] for i in [88, 95, 94, 93, 92]])
+
         elif self.num_landmarks == 19:
             boundaries = {}
             boundaries['left_eyebrow'] = landmarks_64[0:3]
@@ -246,14 +248,17 @@ class FaceLandmarksDataset(Dataset):
         self.detect_face = detect_face
         self.enhance = enhance
         self.center_shift = center_shift
+
         if self.detect_face:
             self.face_detector = MTCNN(thresh=[0.5, 0.6, 0.7])
+
     def __len__(self):
         return len(self.img_names)
 
     def __getitem__(self, idx):
         img_name = self.img_names[idx]
         pil_image = Image.open(img_name)
+
         if pil_image.mode != "RGB":
             # if input is grayscale image, convert it to 3 channel image
             if self.enhance:
@@ -261,21 +266,24 @@ class FaceLandmarksDataset(Dataset):
             temp_image = Image.new('RGB', pil_image.size)
             temp_image.paste(pil_image)
             pil_image = temp_image
+
         image = np.array(pil_image)
+
         if self.gray_scale:
             image = rgb2gray(image)
             image = np.expand_dims(image, axis=2)
             image = np.concatenate((image, image, image), axis=2)
             image = image * 255.0
             image = image.astype(np.uint8)
+
         if not self.detect_face:
             center = [450//2, 450//2+0]
             if self.center_shift != 0:
-                center[0] += int(np.random.uniform(-self.center_shift,
-                                               self.center_shift))
-                center[1] += int(np.random.uniform(-self.center_shift,
-                                               self.center_shift))
+                center[0] += int(np.random.uniform(-self.center_shift, self.center_shift))
+                center[1] += int(np.random.uniform(-self.center_shift, self.center_shift))
+
             scale = 1.8
+
         else:
             detected_faces = self.face_detector.detect_image(image)
             if len(detected_faces) > 0:
@@ -288,13 +296,16 @@ class FaceLandmarksDataset(Dataset):
             else:
                 center = [450//2, 450//2+0]
                 scale = 1.8
+
             if self.center_shift != 0:
                 shift = self.center * self.center_shift / 450
                 center[0] += int(np.random.uniform(-shift, shift))
                 center[1] += int(np.random.uniform(-shift, shift))
+
         base_name = os.path.basename(img_name)
         landmarks_base_name = base_name[:-4] + '_pts.mat'
         landmarks_name = os.path.join(self.landmarks_dir, landmarks_base_name)
+
         if os.path.isfile(landmarks_name):
             mat_data = sio.loadmat(landmarks_name)
             landmarks = mat_data['pts_2d']
@@ -305,8 +316,7 @@ class FaceLandmarksDataset(Dataset):
             heatmap = []
 
         if landmarks != []:
-            new_image, new_landmarks = cv_crop(image, landmarks, center,
-                                               scale, 256, self.center_shift)
+            new_image, new_landmarks = cv_crop(image, landmarks, center, scale, 256, self.center_shift)
             tries = 0
             while self.center_shift != 0 and tries < 5 and (np.max(new_landmarks) > 240 or np.min(new_landmarks) < 15):
                 center = [450//2, 450//2+0]
@@ -316,24 +326,23 @@ class FaceLandmarksDataset(Dataset):
                 center[1] += int(np.random.uniform(-self.center_shift,
                                             self.center_shift))
 
-                new_image, new_landmarks = cv_crop(image, landmarks,
-                                                    center, scale, 256,
-                                                    self.center_shift)
+                new_image, new_landmarks = cv_crop(image, landmarks, center, scale, 256, self.center_shift)
                 tries += 1
+
             if np.max(new_landmarks) > 250 or np.min(new_landmarks) < 5:
                 center = [450//2, 450//2+0]
                 scale = 2.25
-                new_image, new_landmarks = cv_crop(image, landmarks,
-                                                    center, scale, 256,
-                                                    100)
-            assert (np.min(new_landmarks) > 0 and np.max(new_landmarks) < 256), \
-                "Landmarks out of boundary!"
+                new_image, new_landmarks = cv_crop(image, landmarks, center, scale, 256, 100)
+
+            assert (np.min(new_landmarks) > 0 and np.max(new_landmarks) < 256), "Landmarks out of boundary!"
+
             image = new_image
             landmarks = new_landmarks
             heatmap = np.zeros((self.num_lanmdkars, 64, 64))
             for i in range(self.num_lanmdkars):
                 if landmarks[i][0] > 0:
                     heatmap[i] = draw_gaussian(heatmap[i], landmarks[i]/4.0+1, 1)
+
         sample = {'image': image, 'heatmap': heatmap, 'landmarks': landmarks}
         if self.transform:
             sample = self.transform(sample)

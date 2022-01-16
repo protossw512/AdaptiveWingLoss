@@ -1,14 +1,10 @@
 from __future__ import print_function, division
 import torch
 import argparse
-import numpy as np
-import torch.nn as nn
-import time
-import os
-from core.evaler import eval_model
-from core.dataloader import get_dataset
+from data.evaler import eval_model
+from data.dataloader import get_dataset
 from core import models
-from tensorboardX import SummaryWriter
+# from tensorboardX import SummaryWriter
 
 # Parse arguments
 parser = argparse.ArgumentParser()
@@ -52,10 +48,9 @@ NUM_LANDMARKS = args.num_landmarks
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-writer = SummaryWriter(CKPT_SAVE_PATH)
+# writer = SummaryWriter(CKPT_SAVE_PATH)
 
-dataloaders, dataset_sizes = get_dataset(VAL_IMG_DIR, VAL_LANDMARKS_DIR,
-                                         BATCH_SIZE, NUM_LANDMARKS)
+dataloaders, dataset_sizes = get_dataset(VAL_IMG_DIR, VAL_LANDMARKS_DIR, BATCH_SIZE, NUM_LANDMARKS)
 use_gpu = torch.cuda.is_available()
 model_ft = models.FAN(HG_BLOCKS, END_RELU, GRAY_SCALE, NUM_LANDMARKS)
 
@@ -73,5 +68,5 @@ if PRETRAINED_WEIGHTS != "None":
 
 model_ft = model_ft.to(device)
 
-model_ft = eval_model(model_ft, dataloaders, dataset_sizes, writer, use_gpu, 1, 'val', CKPT_SAVE_PATH, NUM_LANDMARKS)
+model_ft = eval_model(model_ft, dataloaders, dataset_sizes, None, use_gpu, 1, 'val', CKPT_SAVE_PATH, NUM_LANDMARKS)
 

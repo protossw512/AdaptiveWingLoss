@@ -116,17 +116,16 @@ def transform(point, center, scale, resolution, rotation=0, invert=False):
 
     return new_point.astype(int)
 
+
 def cv_crop(image, landmarks, center, scale, resolution=256, center_shift=0):
-    new_image = cv2.copyMakeBorder(image, center_shift,
-                                   center_shift,
-                                   center_shift,
-                                   center_shift,
-                                   cv2.BORDER_CONSTANT, value=[0,0,0])
+    new_image = cv2.copyMakeBorder(image, center_shift, center_shift, center_shift, center_shift, cv2.BORDER_CONSTANT, value=[0,0,0])
     new_landmarks = landmarks.copy()
+
     if center_shift != 0:
         center[0] += center_shift
         center[1] += center_shift
         new_landmarks = new_landmarks + center_shift
+
     length = 200 * scale
     top = int(center[1] - length // 2)
     bottom = int(center[1] + length // 2)
@@ -135,16 +134,14 @@ def cv_crop(image, landmarks, center, scale, resolution=256, center_shift=0):
     y_pad = abs(min(top, new_image.shape[0] - bottom, 0))
     x_pad = abs(min(left, new_image.shape[1] - right, 0))
     top, bottom, left, right = top + y_pad, bottom + y_pad, left + x_pad, right + x_pad
-    new_image = cv2.copyMakeBorder(new_image, y_pad,
-                                   y_pad,
-                                   x_pad,
-                                   x_pad,
-                                   cv2.BORDER_CONSTANT, value=[0,0,0])
+
+    new_image = cv2.copyMakeBorder(new_image, y_pad, y_pad, x_pad, x_pad, cv2.BORDER_CONSTANT, value=[0,0,0])
     new_image = new_image[top:bottom, left:right]
-    new_image = cv2.resize(new_image, dsize=(int(resolution), int(resolution)),
-                           interpolation=cv2.INTER_LINEAR)
+    new_image = cv2.resize(new_image, dsize=(int(resolution), int(resolution)), interpolation=cv2.INTER_LINEAR)
+
     new_landmarks[:, 0] = (new_landmarks[:, 0] + x_pad - left) * resolution / length
     new_landmarks[:, 1] = (new_landmarks[:, 1] + y_pad - top) * resolution / length
+
     return new_image, new_landmarks
 
 def cv_rotate(image, landmarks, heatmap, rot, scale, resolution=256):
@@ -163,6 +160,7 @@ def cv_rotate(image, landmarks, heatmap, rot, scale, resolution=256):
                     new_heatmap[i] = draw_gaussian(new_heatmap[i],
                                                    new_landmarks[i]/4.0+1, 1)
         return new_image, new_landmarks, new_heatmap
+
 
 def show_landmarks(image, heatmap, gt_landmarks, gt_heatmap):
     """Show image with pred_landmarks"""
@@ -257,8 +255,7 @@ def power_transform(img, power):
     return img_new
 
 def get_preds_fromhm(hm, center=None, scale=None, rot=None):
-    max, idx = torch.max(
-        hm.view(hm.size(0), hm.size(1), hm.size(2) * hm.size(3)), 2)
+    max, idx = torch.max(hm.view(hm.size(0), hm.size(1), hm.size(2) * hm.size(3)), 2)
     idx += 1
     preds = idx.view(idx.size(0), idx.size(1), 1).repeat(1, 1, 2).float()
     preds[..., 0].apply_(lambda x: (x - 1) % hm.size(3) + 1)
@@ -280,8 +277,7 @@ def get_preds_fromhm(hm, center=None, scale=None, rot=None):
     if center is not None and scale is not None:
         for i in range(hm.size(0)):
             for j in range(hm.size(1)):
-                preds_orig[i, j] = transform(
-                    preds[i, j], center, scale, hm.size(2), rot, True)
+                preds_orig[i, j] = transform(preds[i, j], center, scale, hm.size(2), rot, True)
 
     return preds, preds_orig
 

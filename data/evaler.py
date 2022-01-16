@@ -18,9 +18,8 @@ import matplotlib.pyplot as plt
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def eval_model(model, dataloaders, dataset_sizes,
-               writer, use_gpu=True, epoches=5, dataset='val',
-               save_path='./', num_landmarks=68):
+
+def eval_model(model, dataloaders, dataset_sizes, writer=None, use_gpu=True, epoches=5, dataset='val', save_path='./', num_landmarks=68):
     global_nme = 0
     model.eval()
     for epoch in range(epoches):
@@ -54,6 +53,7 @@ def eval_model(model, dataloaders, dataset_sizes,
                 else:
                     inputs, labels_heatmap = Variable(inputs), Variable(labels_heatmap)
                     labels_boundary = Variable(labels_boundary)
+
                 labels = torch.cat((labels_heatmap, labels_boundary), 1)
                 single_start = time.time()
                 outputs, boundary_channels = model(inputs)
