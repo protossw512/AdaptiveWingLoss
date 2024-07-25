@@ -8,5 +8,5 @@ imgaug
 tensorflow
 git+https://github.com/lanpa/tensorboardX
 joblib
-torch==1.3.0
+torch==2.2.0
 torchvision==0.4.1
